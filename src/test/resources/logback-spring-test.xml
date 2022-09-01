@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration scan="true" scanPeriod="10 seconds" debug="false">
+    <!-- 關閉啟動時 logback 日誌提示訊息 -->
+    <!--    <statusListener class="ch.qos.logback.core.status.NopStatusListener"/>-->
+    <!-- Springboot 預設 log 格式 -->
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <!--定義日誌檔的存儲位址 勿在 LogBack 的配置中使用相對路徑-->
+    <property name="LOG_HOME" value="./logs"/> <!--我偏要 -->
+    <property name="APP_NAME" value="app"/>
+    <property name="CUSTOM_FILE_PATTERN" value="${LOG_HOME}/${APP_NAME}-%d{yyyy-MM-dd}.log"/>
+    <property name="CUSTOM_FILE_PATTERN_ERROR" value="${LOG_HOME}/${APP_NAME}-%d{yyyy-MM-dd}-error.log"/>
+    <!--格式化輸出：%d表示日期，%thread表示執行緒名，%-5level：級別從左顯示5個字元寬度%msg：日誌消息，%n是分行符號-->
+    <!-- 控制台輸出 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <!-- 按照每天生成日誌檔 ANSI -->
+    <appender name="FILE-ANSI" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日誌檔輸出的檔案名-->
+            <FileNamePattern>${CUSTOM_FILE_PATTERN}</FileNamePattern>
+            <!--日誌檔保留天數-->
+            <MaxHistory>30</MaxHistory>
+        </rollingPolicy>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!--格式化輸出：%d表示日期，%thread表示執行緒名，%-5level：級別從左顯示5個字元寬度%msg：日誌消息，%n是分行符號-->
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!--日誌檔最大的大小-->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>10MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <!-- 按照每天生成日誌檔 -->
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!--日誌檔輸出的檔案名-->
+            <FileNamePattern>${CUSTOM_FILE_PATTERN}</FileNamePattern>
+            <!--日誌檔保留天數-->
+            <MaxHistory>30</MaxHistory>
+        </rollingPolicy>
+
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <!--格式化輸出：%d表示日期，%thread表示執行緒名，%-5level：級別從左顯示5個字元寬度%msg：日誌消息，%n是分行符號-->
+            <pattern>${FILE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+        <!--日誌檔最大的大小-->
+        <triggeringPolicy class="ch.qos.logback.core.rolling.SizeBasedTriggeringPolicy">
+            <MaxFileSize>10MB</MaxFileSize>
+        </triggeringPolicy>
+    </appender>
+
+    <appender name="ASYNC-STDOUT" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>256</queueSize>
+        <appender-ref ref="FILE-ANSI"/>
+    </appender>
+
+    <appender name="ASYNC-INFO" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>256</queueSize>
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>Error</level>
+        </filter>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <FileNamePattern>${CUSTOM_FILE_PATTERN_ERROR}</FileNamePattern>
+            <maxHistory>30</maxHistory>
+        </rollingPolicy>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <pattern>${CONSOLE_LOG_PATTERN}</pattern>
+            <charset>UTF-8</charset>
+        </encoder>
+    </appender>
+
+    <appender name="ASYNC-ERROR" class="ch.qos.logback.classic.AsyncAppender">
+        <discardingThreshold>0</discardingThreshold>
+        <queueSize>256</queueSize>
+        <appender-ref ref="FILE"/>
+    </appender>
+
+    <springProfile name="loc">
+        <root level="INFO">
+            <appender-ref ref="STDOUT"/>
+            <appender-ref ref="ASYNC-STDOUT"/>
+            <appender-ref ref="ASYNC-ERROR"/>
+        </root>
+    </springProfile>
+
+    <!-- 日誌輸出級別 -->
+    <springProfile name="!loc">
+        <root level="INFO">
+            <appender-ref ref="ASYNC-INFO"/>
+            <appender-ref ref="ASYNC-ERROR"/>
+        </root>
+    </springProfile>
+
+</configuration>

@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <title>註冊成功</title>
+</head>
+<body>
+    <div>
+        <form method="GET" class="form-signin" th:object="${AddMemberRequest}" th:action="@{/registerSuccess}"/>
+        <p th:text="註冊成功"/>
+        <h2>註冊成功</h2>
+    </div>
+
+</body>
+</html>
